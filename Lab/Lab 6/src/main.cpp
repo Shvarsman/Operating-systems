@@ -6,6 +6,8 @@
 #include <condition_variable>
 #include <chrono>
 
+#include "utils.h" // для isValidString и multiplyLengths
+
 struct ThreadData {
     std::vector<std::string> v;
     char A = 0, B = 0;
@@ -37,18 +39,10 @@ void thread_work(ThreadData& data) {
     std::cin >> time;
 
     for (const auto& str : data.v) {
-        bool valid = true;
-        for (char c : str) {
-            if (c < data.A || c > data.B) {
-                valid = false;
-                break;
-            }
-        }
-
-        if (valid) {
+        if (isValidString(str, data.A, data.B)) {
             std::lock_guard<std::mutex> lock(cs);
             workResult.push_back(str);
-            std::cout << "work: �������� ������� '" << str << "'\n";
+            std::cout << "work:   '" << str << "'\n";
         }
 
         std::this_thread::sleep_for(std::chrono::milliseconds(time));
@@ -65,9 +59,7 @@ void thread_mult_element(ThreadData& data) {
 
     std::cout << "MultElement is start\n";
 
-    for (const auto& str : data.v) {
-        MultElementResult *= static_cast<long long>(str.size());
-    }
+    MultElementResult = multiplyLengths(data.v);
 
     std::cout << "MultElement is end\n";
 
